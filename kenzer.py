@@ -1,0 +1,211 @@
+#imports
+import zulip
+import time
+import os
+
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
+from configparser import SafeConfigParser
+
+from modules import enumerator
+from modules import scanner
+
+#configs
+conf = "kenzer.conf"
+config = SafeConfigParser()
+with open(conf) as f:
+    config.readfp(f, conf)
+_BotMail=config.get("zulip", "email")
+_Site=config.get("zulip", "site")
+_APIKey=config.get("zulip", "key")
+_kenzer=config.get("env", "kenzer")
+_kenzerdb=config.get("env", "kenzerdb")
+_home=config.get("env", "home")
+os.chdir(_kenzer)
+os.environ["HOME"] = _home
+if(os.path.exists(_kenzerdb) == False):
+    os.system("mkdir "+_kenzerdb)
+
+#kenzer 
+class Kenzer(object):
+    
+    #initializations
+    def __init__(self):
+        print("[*] initializing kenzer")
+        self.client = zulip.Client(email=_BotMail, site=_Site, api_key=_APIKey)
+        self.subscribe()
+        print("[*] training chatterbot")
+        self.chatbot = ChatBot("Kenzer")
+        self.trainer = ChatterBotCorpusTrainer(self.chatbot)
+        self.trainer.train("chatterbot.corpus.english")
+        print("[*] loading modules")
+        self.modules=["man", "subenum", "probeserv", "subover", "cvescan", "enum", "scan", "recon"]
+        print("[*] KENZER is online")
+
+    #subscribes to all streams
+    def subscribe(self):
+        json=self.client.get_streams()["streams"]
+        streams=[{"name":stream["name"]} for stream in json]
+        self.client.add_subscriptions(streams)
+
+    #manual
+    def man(self):
+        message = "**KENZER is online**\n"
+        message +="  initializations successful\n"
+        message +="  7 modules up & running\n"
+        message +="**KENZER modules**\n"
+        message +="  `subenum` - enumerates subdomains\n"
+        message +="  `probeserv` - probes web servers from enumerated subdomains\n"
+        message +="  `subover` - checks for subdomain takeovers\n"
+        message +="  `cvescan` - checks for CVEs\n"
+        message +="  `enum` - runs all enumerator modules\n"
+        message +="  `scan` - runs all scanner modules\n"
+        message +="  `recon` - runs all modules\n"
+        message +="`kenzer <module>` - runs a specific modules\n"
+        message +="`kenzer man` - shows this manual\n"
+        message +="`kenzer man <module>` - shows manual for a specific module\n"
+        message +="or you can just interact with chatterbot\n"
+        self.sendMessage(message)
+        return
+    
+    #modules manual
+    def manModule(self, module):
+        if module == "subenum":
+            message ="`kenzer subenum <domain>` - enumerates subdomains of the given domain\n"
+        elif module == "probeserv":
+            message ="`kenzer probeserv <domain>` - probes web servers from enumerated subdomains of the given domain\n"
+        elif module == "subover":
+            message ="`kenzer subover <domain>` - checks for subdomain takeover possibilites of the given domain\n"
+        elif module == "cvescan":
+            message ="`kenzer cvescan <domain>` - checks if subdomains of the given domain are vulnerable to known CVEs\n"
+        elif module == "enum":
+            message ="`kenzer enum <domain>` - runs all enumerator modules on given domain\n"
+        elif module == "scan":
+            message ="`kenzer scan <domain>` - runs all scanner modules on given domain\n"
+        elif module == "recon":
+            message ="`kenzer recon <domain>` - runs all modules on given domain\n"
+        else:
+            message ="invalid module....\n"
+        self.sendMessage(message)
+        return
+
+    #sends messages
+    def sendMessage(self, message):
+        time.sleep(2)
+        if self.type == "private":
+            self.client.send_message({
+                    "type": self.type,
+                    "to": self.sender_email,
+                    "content": message
+        })
+        else:
+            self.client.send_message({
+                        "type": self.type,
+                        "subject": self.subject,
+                        "to": self.display_recipient,
+                        "content": message
+            })
+        time.sleep(3)
+        return
+
+    #enumerates subdomains
+    def subenum(self):
+        for i in range(2,len(self.content)):
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
+            message = self.enum.subenum()
+            self.sendMessage(message)
+        return
+
+    #probes web servers from enumerated subdomains
+    def probeserv(self):
+        for i in range(2,len(self.content)):
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
+            message = self.enum.probeserv()
+            self.sendMessage(message)
+        return
+
+    #checks for subdomain takeovers
+    def subover(self):
+        for i in range(2,len(self.content)):
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb)
+            message = self.scan.subover()
+            self.sendMessage(message)
+        return
+
+    #checks for CVEs
+    def cvescan(self):
+        for i in range(2,len(self.content)):
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb)
+            message = self.scan.cvescan()
+            self.sendMessage(message)
+        return
+
+    #runs all enumeration modules
+    def enum(self):
+        self.subenum()
+        self.probeserv()
+        return
+
+    #runs all scanning modules
+    def scan(self):
+        self.subover()
+        self.cvescan()
+        return
+    
+    #runs all modules
+    def recon(self):
+        self.enum()
+        self.scan()
+        return
+
+    #controls
+    def process(self, text):
+        self.content = text["content"].split()
+        self.sender_email = text["sender_email"]
+        self.type = text["type"]
+        self.display_recipient = text['display_recipient']
+        self.subject = text['subject']
+        content=self.content
+        print(content)
+        if self.sender_email == _BotMail:
+            return
+        if len(content)>1 and content[0].lower() == "kenzer" or content[0] == "@**kenzer**":
+            if content[1].lower() == "man":
+                if len(content)==2:
+                    self.man()
+                elif len(content)==3:
+                    self.manModule(content[2])
+                else:
+                    message = "excuse me???"
+                    self.sendMessage(message)    
+            elif content[1].lower() == "subenum":
+                self.subenum()
+            elif content[1].lower() == "probeserv":
+                self.probeserv()
+            elif content[1].lower() == "subover":
+                self.subover()
+            elif content[1].lower() == "cvescan":
+                self.cvescan()
+            elif content[1].lower() == "enum":
+                self.enum()
+            elif content[1].lower() == "scan":
+                self.scan()
+            elif content[1].lower() == "recon":
+                self.recon()
+            else:
+                message = "excuse me??"
+                self.sendMessage(message)
+        else:
+            message = self.chatbot.get_response(' '.join(self.content))
+            message = message.serialize()['text']
+            self.sendMessage(message)
+        return    
+
+#main
+def main():
+    bot = Kenzer()
+    bot.client.call_on_each_message(bot.process)
+
+#runs main
+if __name__ == "__main__":
+    main()
