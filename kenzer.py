@@ -44,7 +44,7 @@ class Kenzer(object):
         self.trainer = ChatterBotCorpusTrainer(self.chatbot)
         self.trainer.train("chatterbot.corpus.english")
         print("[*] loading modules")
-        self.modules=["man", "subenum", "probeserv", "subover", "cvescan", "enum", "scan", "recon"]
+        self.modules=["man", "subenum", "probeserv", "subover", "cvescan","vulnscan", "enum", "scan", "recon"]
         print("[*] KENZER is online")
 
     #subscribes to all streams
@@ -61,12 +61,13 @@ class Kenzer(object):
     def man(self):
         message = "**KENZER is online**\n"
         message +="  initializations successful\n"
-        message +="  7 modules up & running\n"
+        message +="  8 modules up & running\n"
         message +="**KENZER modules**\n"
         message +="  `subenum` - enumerates subdomains\n"
         message +="  `probeserv` - probes web servers from enumerated subdomains\n"
         message +="  `subover` - checks for subdomain takeovers\n"
         message +="  `cvescan` - checks for CVEs\n"
+        message +="  `vulnscan` - checks for common vulnerabilites\n"
         message +="  `enum` - runs all enumerator modules\n"
         message +="  `scan` - runs all scanner modules\n"
         message +="  `recon` - runs all modules\n"
@@ -87,6 +88,8 @@ class Kenzer(object):
             message ="`kenzer subover <domain>` - checks for subdomain takeover possibilites of the given domain\n"
         elif module == "cvescan":
             message ="`kenzer cvescan <domain>` - checks if subdomains of the given domain are vulnerable to known CVEs\n"
+        elif module == "vulnscan":
+            message ="`kenzer vulnscan <domain>` - checks if subdomains of the given domain are vulnerable to other common vulnerabilities\n"
         elif module == "enum":
             message ="`kenzer enum <domain>` - runs all enumerator modules on given domain\n"
         elif module == "scan":
@@ -148,6 +151,14 @@ class Kenzer(object):
             message = self.scan.cvescan()
             self.sendMessage(message)
         return
+    
+    #checks for other common vulnerabilites
+    def vulnscan(self):
+        for i in range(2,len(self.content)):
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb)
+            message = self.scan.vulnscan()
+            self.sendMessage(message)
+        return
 
     #runs all enumeration modules
     def enum(self):
@@ -159,6 +170,7 @@ class Kenzer(object):
     def scan(self):
         self.subover()
         self.cvescan()
+        self.vulnscan()
         return
     
     #runs all modules
@@ -195,6 +207,8 @@ class Kenzer(object):
                 self.subover()
             elif content[1].lower() == "cvescan":
                 self.cvescan()
+            elif content[1].lower() == "vulnscan":
+                self.vulnscan()
             elif content[1].lower() == "enum":
                 self.enum()
             elif content[1].lower() == "scan":

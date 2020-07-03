@@ -22,6 +22,7 @@
 >* Probes web servers from the enumerated subdomains<br>
 >* Checks for Subdomain Takeovers<br>
 >* Checks for CVEs<br>
+>* Checks for other common vulnerabilites<br>
 >* Chats using ChatterBot Conversational Engine<br>
 
 

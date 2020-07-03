@@ -69,5 +69,5 @@ class Enumerator:
         path+="/httpx.log"
         if(os.path.exists(path)):
             os.system("mv "+path+" "+path+".old")
-        os.system("cat "+subs+" | httpx -threads 100 -retries 2 -timeout 10 -verbose -o "+path)
+        os.system("httpx -follow-host-redirects -l "+subs+" -threads 100 -ports 80,443,8080,8000 -retries 2 -timeout 10 -verbose -o "+path)
         return

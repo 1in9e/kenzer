@@ -43,4 +43,15 @@ class Scanner:
         os.system("nuclei -c 40 -t templates/cvescan -v -timeout 20 -l "+subs+" -o "+output)
         return("completed cvescan for: "+domain)
 
+    #checks for other common vulnerabilites
+    def vulnscan(self):
+        domain = self.domain
+        path = self.path
+        output = path+"/vulnscan.log"
+        subs = path+"/probeserv.kenz"
+        if(os.path.exists(subs) == False):
+            return("run probeserv")
+        os.system("nuclei -c 40 -t templates/vulnscan -v -timeout 20 -l "+subs+" -o "+output)
+        return("completed vulnscan for: "+domain)
+
     
