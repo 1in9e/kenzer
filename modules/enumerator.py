@@ -53,6 +53,8 @@ class Enumerator:
         domain = self.domain
         path = self.path
         subs = path+"/subenum.kenz"
+        if(os.path.exists(subs) == False):
+            return("run subenum")
         path+="/httpx.log"
         if(os.path.exists(path)):
             os.system("mv "+path+" "+path+".old")

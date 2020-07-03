@@ -11,20 +11,23 @@ from modules import enumerator
 from modules import scanner
 
 #configs
-conf = "kenzer.conf"
-config = SafeConfigParser()
-with open(conf) as f:
-    config.readfp(f, conf)
-_BotMail=config.get("zulip", "email")
-_Site=config.get("zulip", "site")
-_APIKey=config.get("zulip", "key")
-_kenzer=config.get("env", "kenzer")
-_kenzerdb=config.get("env", "kenzerdb")
-_home=config.get("env", "home")
-os.chdir(_kenzer)
-os.environ["HOME"] = _home
-if(os.path.exists(_kenzerdb) == False):
-    os.system("mkdir "+_kenzerdb)
+try:
+    conf = "kenzer.conf"
+    config = SafeConfigParser()
+    with open(conf) as f:
+        config.readfp(f, conf)
+    _BotMail=config.get("zulip", "email")
+    _Site=config.get("zulip", "site")
+    _APIKey=config.get("zulip", "key")
+    _kenzer=config.get("env", "kenzer")
+    _kenzerdb=config.get("env", "kenzerdb")
+    _home=config.get("env", "home")
+    os.chdir(_kenzer)
+    os.environ["HOME"] = _home
+    if(os.path.exists(_kenzerdb) == False):
+        os.system("mkdir "+_kenzerdb)
+except:
+    print("invalid configurations")
 
 #kenzer 
 class Kenzer(object):
@@ -44,9 +47,13 @@ class Kenzer(object):
 
     #subscribes to all streams
     def subscribe(self):
-        json=self.client.get_streams()["streams"]
-        streams=[{"name":stream["name"]} for stream in json]
-        self.client.add_subscriptions(streams)
+        try:
+            json=self.client.get_streams()["streams"]
+            streams=[{"name":stream["name"]} for stream in json]
+            self.client.add_subscriptions(streams)
+        except:
+            print("an exception occurred.... retrying....")
+            self.subscribe()
 
     #manual
     def man(self):
@@ -203,8 +210,12 @@ class Kenzer(object):
 
 #main
 def main():
-    bot = Kenzer()
-    bot.client.call_on_each_message(bot.process)
+    try:
+        bot = Kenzer()
+        bot.client.call_on_each_message(bot.process)
+    except:
+        print("an exception occurred.... restarting....")
+        main()
 
 #runs main
 if __name__ == "__main__":
