@@ -2,6 +2,7 @@
 import zulip
 import time
 import os
+import sys
 
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
@@ -28,6 +29,7 @@ try:
         os.system("mkdir "+_kenzerdb)
 except:
     print("invalid configurations")
+    sys.exit("invalid configurations")
 
 #kenzer 
 class Kenzer(object):
