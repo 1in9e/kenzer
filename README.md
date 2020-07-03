@@ -12,6 +12,8 @@
 	b. `nuclei`<br>
 	c. `httpx`<br>
 	d. `subfinder`<br>
+	e. `massdns`<br>
+	f. `shuffledns`<br>
 7. Install & run using ` bash install.sh ` or just run using ` bash run.sh `<br>
 8. You can interact with **KENZER** using multi-platform Zulip Clients.<br>
 
