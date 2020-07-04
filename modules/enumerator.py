@@ -23,8 +23,9 @@ class Enumerator:
             os.system("mv "+out+" "+out+".old")
         os.system("cat "+path+"/subfinder.log* "+path+"/subenum.kenz* "+path+"/shuffledns.log* | sort -u > "+out)
         os.system("rm "+path+"/*.old")
-        counts = str(sum(1 for line in open(out)))
-        return "successfully gathered "+counts+" subdomains for: "+domain
+        #counts = str(sum(1 for line in open(out)))
+        #return "successfully gathered "+counts+" subdomains for: "+domain
+        return("completed subenum for: "+domain) 
 
     #probes for web servers from enumerated subdomains
     def probeserv(self):
@@ -38,8 +39,9 @@ class Enumerator:
             os.system("mv "+out+" "+out+".old")
         os.system("cat "+path+"/httpx.log* | cut -d' ' -f 1 | sort -u > "+out)
         os.system("rm "+path+"/*.old")
-        counts = str(sum(1 for line in open(out))) 
-        return "successfully probed "+counts+" servers for: "+domain
+        #ounts = str(sum(1 for line in open(out))) 
+        #return "successfully probed "+counts+" servers for: "+domain
+        return("completed probeserv for: "+domain) 
     
     #enumerates subdomains using subfinder
     #"retains wildcard domains" - retaining the possibilities of takeover detection via DNS e.g. AZURE
