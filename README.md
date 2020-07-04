@@ -1,5 +1,5 @@
 # KENZER | A Zulip Chatbot
-## not innovation. just automation.
+### not innovation. just automation.
 ![](/images/logo.png)
 
 ## Instructions for running
