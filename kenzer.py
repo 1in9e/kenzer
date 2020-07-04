@@ -28,7 +28,6 @@ try:
     if(os.path.exists(_kenzerdb) == False):
         os.system("mkdir "+_kenzerdb)
 except:
-    print("invalid configurations")
     sys.exit("invalid configurations")
 
 #kenzer 
@@ -226,12 +225,8 @@ class Kenzer(object):
 
 #main
 def main():
-    try:
-        bot = Kenzer()
-        bot.client.call_on_each_message(bot.process)
-    except:
-        print("an exception occurred.... restarting....")
-        main()
+    bot = Kenzer()
+    bot.client.call_on_each_message(bot.process)
 
 #runs main
 if __name__ == "__main__":

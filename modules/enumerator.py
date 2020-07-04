@@ -36,12 +36,13 @@ class Enumerator:
         out = path+"/probeserv.kenz"
         if(os.path.exists(out)):
             os.system("mv "+out+" "+out+".old")
-        os.system("cat "+path+"/httpx.log* "+path+"/probeserv.kenz* | sort -u > "+out)
-        os.system("rm "+path+"/*.old")
+        os.system("cat "+path+"/httpx.log* | cut -d" " -f 1 | sort -u > "+out)
+        #os.system("rm "+path+"/*.old")
         counts = str(sum(1 for line in open(out))) 
         return "successfully probed "+counts+" servers for: "+domain
     
     #enumerates subdomains using subfinder
+    #"retains wildcard domains" - retaining the possibilities of takeover detection via DNS e.g. AZURE
     def subfinder(self):
         domain = self.domain
         path = self.path
@@ -52,13 +53,14 @@ class Enumerator:
         return 
     
     #enumerates subdomains using shuffledns
+    #"removes wildcard domains" - eliminating the possibilities of takeover detection via DNS e.g. AZURE
     def shuffledns(self):
         domain = self.domain
         path = self.path
         path+="/shuffledns.log"
         if(os.path.exists(path)):
             os.system("mv "+path+" "+path+".old")
-        os.system("shuffledns -r wordlists/resolvers.txt -w wordlists/shuffledns.txt -o "+path+" -v -d "+domain)
+        os.system("shuffledns -r wordlists/resolvers.txt -w wordlists/shuffledns.txt -wt 100 -o "+path+" -v -d "+domain)
         return 
 
     #probes for web servers from enumerated subdomains using httpx
@@ -69,5 +71,5 @@ class Enumerator:
         path+="/httpx.log"
         if(os.path.exists(path)):
             os.system("mv "+path+" "+path+".old")
-        os.system("httpx -follow-host-redirects -l "+subs+" -threads 100 -ports 80,443,8080,8000 -retries 2 -timeout 10 -verbose -o "+path)
+        os.system("httpx -status-code -l "+subs+" -threads 100 -ports 80,443,8080,8000 -retries 2 -timeout 10 -verbose -o "+path)
         return
