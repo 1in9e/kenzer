@@ -19,4 +19,4 @@
 >* Checks for other common vulnerabilites<br>
 >* Chats using ChatterBot Conversational Engine<br>
 
-** FEEL FREE TO SUBMIT PULL REQUESTS **
+**FEEL FREE TO SUBMIT PULL REQUESTS**
