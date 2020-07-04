@@ -36,7 +36,7 @@ class Enumerator:
         out = path+"/probeserv.kenz"
         if(os.path.exists(out)):
             os.system("mv "+out+" "+out+".old")
-        os.system("cat "+path+"/httpx.log* | cut -d" " -f 1 | sort -u > "+out)
+        os.system("cat "+path+"/httpx.log* | cut -d' ' -f 1 | sort -u > "+out)
         #os.system("rm "+path+"/*.old")
         counts = str(sum(1 for line in open(out))) 
         return "successfully probed "+counts+" servers for: "+domain
