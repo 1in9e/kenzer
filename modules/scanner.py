@@ -13,6 +13,11 @@ class Scanner:
         if(os.path.exists(self.path) == False):
             os.system("mkdir "+self.path)
 
+    #runs nuclei
+    def nuclei(self, threads, template, timeout, hosts, output):
+        os.system("nuclei -c {0} -t templates/{1} -v -timeout {2} -l {3} -o {4}".format(threads, template, timeout, hosts, output))
+        return
+
     #checks for subdomain takeovers
     def subover(self):
         domain = self.domain
@@ -21,16 +26,15 @@ class Scanner:
         subs = path+"/probeserv.kenz"
         if(os.path.exists(subs) == False):
             return("run probeserv")
-        os.system("nuclei -c 40 -t templates/subover/detect-all-takeovers.yaml -v -timeout 20 -l "+subs+" -o "+output)
+        self.nuclei(40, "subover/detect-all-takeovers.yaml", 20, subs, output)
         output = path+"/suboverDNS.log"
         subs = path+"/subenum.kenz"
         if(os.path.exists(subs) == False):
             return("run subenum")
-        os.system("nuclei -c 40 -t templates/subover/subdomain-takeover-dns.yaml -v -timeout 20 -l "+subs+" -o "+output)
+        self.nuclei(40, "subover/subdomain-takeover-dns", 20, subs, output)
         output = path+"/suboverDNS2.log"
-        os.system("nuclei -c 40 -t templates/subover/subdomain-takeover-dns-wildcards.yaml -v -timeout 20 -l "+subs+" -o "+output)
+        self.nuclei(40, "subover/subdomain-takeover-dns-wildcards.yaml", 20, subs, output)
         return("completed subover for: "+domain) 
-
 
     #checks for CVEs
     def cvescan(self):
@@ -40,10 +44,10 @@ class Scanner:
         subs = path+"/probeserv.kenz"
         if(os.path.exists(subs) == False):
             return("run probeserv")
-        os.system("nuclei -c 40 -t templates/cvescan -v -timeout 20 -l "+subs+" -o "+output)
+        self.nuclei(40, "cvescan", 20, subs, output)
         return("completed cvescan for: "+domain)
 
-    #checks for other common vulnerabilites
+    #checks for other common vulnerabilities
     def vulnscan(self):
         domain = self.domain
         path = self.path
@@ -51,7 +55,5 @@ class Scanner:
         subs = path+"/probeserv.kenz"
         if(os.path.exists(subs) == False):
             return("run probeserv")
-        os.system("nuclei -c 40 -t templates/vulnscan -v -timeout 20 -l "+subs+" -o "+output)
-        return("completed vulnscan for: "+domain)
-
-    
+        self.nuclei(40, "vulnscan", 20, subs, output)
+        return("completed vulnscan for: "+domain) 

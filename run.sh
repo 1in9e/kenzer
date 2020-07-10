@@ -1,1 +1,1 @@
-python3 kenzer.py
+python3 kenzer.py | tee kenzer.log

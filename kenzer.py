@@ -28,7 +28,7 @@ try:
     if(os.path.exists(_kenzerdb) == False):
         os.system("mkdir "+_kenzerdb)
 except:
-    sys.exit("invalid configurations")
+    sys.exit("[*] invalid configurations")
 
 #kenzer 
 class Kenzer(object):
@@ -37,13 +37,13 @@ class Kenzer(object):
     def __init__(self):
         print("[*] initializing kenzer")
         self.client = zulip.Client(email=_BotMail, site=_Site, api_key=_APIKey)
-        self.subscribe()
+        #self.subscribe()
         print("[*] training chatterbot")
         self.chatbot = ChatBot("Kenzer")
         self.trainer = ChatterBotCorpusTrainer(self.chatbot)
         self.trainer.train("chatterbot.corpus.english")
         print("[*] loading modules")
-        self.modules=["man", "subenum", "probeserv", "subover", "cvescan","vulnscan", "enum", "scan", "recon"]
+        #self.modules=["man", "subenum", "probeserv", "portenum", "subover", "cvescan","vulnscan", "enum", "scan", "recon", "remolog"]
         print("[*] KENZER is online")
 
     #subscribes to all streams
@@ -53,23 +53,25 @@ class Kenzer(object):
             streams=[{"name":stream["name"]} for stream in json]
             self.client.add_subscriptions(streams)
         except:
-            print("an exception occurred.... retrying....")
+            print("[*] an exception occurred.... retrying....")
             self.subscribe()
 
     #manual
     def man(self):
         message = "**KENZER is online**\n"
         message +="  initializations successful\n"
-        message +="  8 modules up & running\n"
+        message +="  10 modules up & running\n"
         message +="**KENZER modules**\n"
         message +="  `subenum` - enumerates subdomains\n"
         message +="  `probeserv` - probes web servers from enumerated subdomains\n"
+        message +="  `portenum` - enumerates open ports\n"
         message +="  `subover` - checks for subdomain takeovers\n"
         message +="  `cvescan` - checks for CVEs\n"
         message +="  `vulnscan` - checks for common vulnerabilites\n"
         message +="  `enum` - runs all enumerator modules\n"
         message +="  `scan` - runs all scanner modules\n"
         message +="  `recon` - runs all modules\n"
+        message +="  `remolog` - removes old log files\n"
         message +="`kenzer <module>` - runs a specific modules\n"
         message +="`kenzer man` - shows this manual\n"
         message +="`kenzer man <module>` - shows manual for a specific module\n"
@@ -82,7 +84,9 @@ class Kenzer(object):
         if module == "subenum":
             message ="`kenzer subenum <domain>` - enumerates subdomains of the given domain\n"
         elif module == "probeserv":
-            message ="`kenzer probeserv <domain>` - probes web servers from enumerated subdomains of the given domain\n"
+            message ="`kenzer probeserv <domain>` - probes web servers for enumerated subdomains of the given domain\n"
+        elif module == "portenum":
+            message ="`kenzer portenum <domain>` - enumerates open ports for enumerated subdomains of the given domain\n"
         elif module == "subover":
             message ="`kenzer subover <domain>` - checks for subdomain takeover possibilites of the given domain\n"
         elif module == "cvescan":
@@ -95,6 +99,8 @@ class Kenzer(object):
             message ="`kenzer scan <domain>` - runs all scanner modules on given domain\n"
         elif module == "recon":
             message ="`kenzer recon <domain>` - runs all modules on given domain\n"
+        elif module == "remolog":
+            message ="`kenzer remolog <domain>` - removes old log files for given domain\n"
         else:
             message ="invalid module....\n"
         self.sendMessage(message)
@@ -134,6 +140,14 @@ class Kenzer(object):
             message = self.enum.probeserv()
             self.sendMessage(message)
         return
+    
+    #enumerates open ports
+    def portenum(self):
+        for i in range(2,len(self.content)):
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
+            message = self.enum.portenum()
+            self.sendMessage(message)
+        return
 
     #checks for subdomain takeovers
     def subover(self):
@@ -151,7 +165,7 @@ class Kenzer(object):
             self.sendMessage(message)
         return
     
-    #checks for other common vulnerabilites
+    #checks for other common vulnerabilities
     def vulnscan(self):
         for i in range(2,len(self.content)):
             self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb)
@@ -163,6 +177,7 @@ class Kenzer(object):
     def enum(self):
         self.subenum()
         self.probeserv()
+        self.portenum()
         return
 
     #runs all scanning modules
@@ -176,6 +191,14 @@ class Kenzer(object):
     def recon(self):
         self.enum()
         self.scan()
+        return
+    
+    #removes old log files
+    def remolog(self):
+        for i in range(2,len(self.content)):
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
+            message = self.enum.remolog()
+            self.sendMessage(message)
         return
 
     #controls
@@ -202,6 +225,8 @@ class Kenzer(object):
                 self.subenum()
             elif content[1].lower() == "probeserv":
                 self.probeserv()
+            elif content[1].lower() == "portenum":
+                self.portenum()
             elif content[1].lower() == "subover":
                 self.subover()
             elif content[1].lower() == "cvescan":
@@ -214,6 +239,8 @@ class Kenzer(object):
                 self.scan()
             elif content[1].lower() == "recon":
                 self.recon()
+            elif content[1].lower() == "remolog":
+                self.remolog()
             else:
                 message = "excuse me??"
                 self.sendMessage(message)
