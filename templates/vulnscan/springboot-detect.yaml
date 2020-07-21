@@ -64,8 +64,6 @@ requests:
       - "{{BaseURL}}/info"
       - "{{BaseURL}}/jolokia"
       - "{{BaseURL}}/jolokia/list"
-      - "{{BaseURL}}:8090/jolokia"
-      - "{{BaseURL}}:8090/jolokia/list"
       - "{{BaseURL}}/loggers"
       - "{{BaseURL}}/management"
       - "{{BaseURL}}/mappings"
@@ -95,6 +93,7 @@ requests:
         words:
           - "X-Application-Context"
           - "application/json"
+          - "application/vnd.spring-boot.actuator.v2+json"
           - "hprof"
         condition: or
         part: header

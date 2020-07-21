@@ -55,7 +55,7 @@ class Enumerator:
     #probes for web servers from enumerated subdomains
     def probeserv(self):
         if(os.path.exists(self.path+"/subenum.kenz") == False):
-            return("run subenum")
+            return("run subenum for: "+self.domain)
         self.httpx()
         domain = self.domain
         path = self.path
@@ -81,7 +81,7 @@ class Enumerator:
     #enumerates open ports using naabu
     def portenum(self):
         if(os.path.exists(self.path+"/subenum.kenz") == False):
-            return("run subenum")
+            return("run subenum for: "+self.domain)
         self.shuffsolv()
         domain = self.domain
         path = self.path
@@ -99,4 +99,28 @@ class Enumerator:
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
         os.system("shuffledns -r wordlists/resolvers.txt -wt 100 -o {0} -v -list {1}".format(path, subs))
-        return 
+        return
+
+    #enumerates urls
+    #generates massive size of output
+    def urlenum(self):
+        self.gau()
+        domain = self.domain
+        path = self.path
+        out=path+"/urlenum.kenz"
+        if(os.path.exists(out)):
+            os.system("mv {0} {0}.old".format(out))
+        os.system("cat {0}/gau.log* {0}/urlenum.kenz* | sort -u > {1}".format(path, out))
+        #counts = str(sum(1 for line in open(out)))
+        #return "successfully gathered {0} urls for: {1}".format(counts, domain)
+        return("completed urlenum for: "+domain) 
+    
+    #enumerates urls using gau
+    def gau(self):
+        domain = self.domain
+        path = self.path
+        path+="/gau.log"
+        if(os.path.exists(path)):
+            os.system("mv {0} {0}.old".format(path))
+        os.system("gau -retries 2 -subs -o {0} -v {1}".format(path, domain))
+        return

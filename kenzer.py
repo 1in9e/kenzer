@@ -43,7 +43,7 @@ class Kenzer(object):
         self.trainer = ChatterBotCorpusTrainer(self.chatbot)
         self.trainer.train("chatterbot.corpus.english")
         print("[*] loading modules")
-        #self.modules=["man", "subenum", "probeserv", "portenum", "subover", "cvescan","vulnscan", "enum", "scan", "recon", "remolog"]
+        #self.modules=["man", "subenum", "probeserv", "portenum", "urlenum", "subover", "cvescan", "vulnscan", "enum", "scan", "recon", "remolog"]
         print("[*] KENZER is online")
 
     #subscribes to all streams
@@ -60,11 +60,12 @@ class Kenzer(object):
     def man(self):
         message = "**KENZER is online**\n"
         message +="  initializations successful\n"
-        message +="  10 modules up & running\n"
+        message +="  11 modules up & running\n"
         message +="**KENZER modules**\n"
         message +="  `subenum` - enumerates subdomains\n"
         message +="  `probeserv` - probes web servers from enumerated subdomains\n"
         message +="  `portenum` - enumerates open ports\n"
+        message +="  `urlenum` - enumerates urls\n"
         message +="  `subover` - checks for subdomain takeovers\n"
         message +="  `cvescan` - checks for CVEs\n"
         message +="  `vulnscan` - checks for common vulnerabilites\n"
@@ -87,12 +88,14 @@ class Kenzer(object):
             message ="`kenzer probeserv <domain>` - probes web servers for enumerated subdomains of the given domain\n"
         elif module == "portenum":
             message ="`kenzer portenum <domain>` - enumerates open ports for enumerated subdomains of the given domain\n"
+        elif module == "urlenum":
+            message ="`kenzer urlenum <domain>` - enumerates urls of the given domain\n"
         elif module == "subover":
             message ="`kenzer subover <domain>` - checks for subdomain takeover possibilites of the given domain\n"
         elif module == "cvescan":
-            message ="`kenzer cvescan <domain>` - checks if subdomains of the given domain are vulnerable to known CVEs\n"
+            message ="`kenzer cvescan <domain>` - checks if subdomains/urls of the given domain are vulnerable to known CVEs\n"
         elif module == "vulnscan":
-            message ="`kenzer vulnscan <domain>` - checks if subdomains of the given domain are vulnerable to other common vulnerabilities\n"
+            message ="`kenzer vulnscan <domain>` - checks if subdomains/urls of the given domain are vulnerable to other common vulnerabilities\n"
         elif module == "enum":
             message ="`kenzer enum <domain>` - runs all enumerator modules on given domain\n"
         elif module == "scan":
@@ -148,6 +151,13 @@ class Kenzer(object):
             message = self.enum.portenum()
             self.sendMessage(message)
         return
+    #enumerates urls
+    def urlenum(self):
+        for i in range(2,len(self.content)):
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
+            message = self.enum.urlenum()
+            self.sendMessage(message)
+        return
 
     #checks for subdomain takeovers
     def subover(self):
@@ -178,6 +188,7 @@ class Kenzer(object):
         self.subenum()
         self.probeserv()
         self.portenum()
+        self.urlenum()
         return
 
     #runs all scanning modules
@@ -227,6 +238,8 @@ class Kenzer(object):
                 self.probeserv()
             elif content[1].lower() == "portenum":
                 self.portenum()
+            elif content[1].lower() == "urlenum":
+                self.urlenum()
             elif content[1].lower() == "subover":
                 self.subover()
             elif content[1].lower() == "cvescan":
