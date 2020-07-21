@@ -87,7 +87,7 @@ class Enumerator:
         path = self.path
         output = path+"/portenum.kenz"
         subs = path+"/shuffsolv.log"
-        os.system("naabu -hL {0} -ports {4} -retries {5} -rate {6} -timeout {7} -json -o {1} -v -t {2} ".format(subs, output, 4, "top-1000", 2, 200, 2000))
+        os.system("naabu -hL {0} -ports {3} -retries {4} -rate {5} -timeout {6} -json -o {1} -v -t {2} ".format(subs, output, 4, "top-1000", 2, 200, 2000))
         return("completed portenum for: "+domain)
 
     #resolves & removes wildcard subdomains using shuffledns
