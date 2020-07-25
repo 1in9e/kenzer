@@ -38,7 +38,7 @@ class Enumerator:
         path+="/subfinder.log"
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
-        os.system("subfinder -t 20 -max-time 500 -o {0} -v -timeout 20 -d {1}".format(path, domain))
+        os.system("subfinder -t 40 -max-time 500 -o {0} -v -timeout 20 -d {1}".format(path, domain))
         return
 
     #enumerates subdomains using shuffledns
@@ -102,7 +102,8 @@ class Enumerator:
         return
 
     #enumerates urls
-    #generates massive size of output
+    #generates massive results containing endpoints with 200 status code
+    #isn't reliable at all
     def urlenum(self):
         self.gau()
         domain = self.domain
@@ -110,17 +111,19 @@ class Enumerator:
         out=path+"/urlenum.kenz"
         if(os.path.exists(out)):
             os.system("mv {0} {0}.old".format(out))
-        os.system("cat {0}/gau.log* {0}/urlenum.kenz* | sort -u > {1}".format(path, out))
+        os.system("cat {0}/gttpx.log | grep [200] | cut -d' ' -f 1 | sort -u > {1}".format(path, out))
         #counts = str(sum(1 for line in open(out)))
         #return "successfully gathered {0} urls for: {1}".format(counts, domain)
         return("completed urlenum for: "+domain) 
     
-    #enumerates urls using gau
+    #enumerates urls using gau & probes using httpx
     def gau(self):
         domain = self.domain
         path = self.path
         path+="/gau.log"
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
-        os.system("gau -retries 2 -subs -o {0} -v {1}".format(path, domain))
+        os.system("gau -subs -o {0} {1}".format(path, domain))
+        out = self.path+"/gttpx.log"
+        os.system("httpx -threads 100 -status-code -retries 2 -timeout 10 -verbose -l {0} -o {1}".format(path, out))
         return

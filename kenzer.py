@@ -162,7 +162,7 @@ class Kenzer(object):
     #checks for subdomain takeovers
     def subover(self):
         for i in range(2,len(self.content)):
-            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb)
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
             message = self.scan.subover()
             self.sendMessage(message)
         return
@@ -170,7 +170,7 @@ class Kenzer(object):
     #checks for CVEs
     def cvescan(self):
         for i in range(2,len(self.content)):
-            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb)
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
             message = self.scan.cvescan()
             self.sendMessage(message)
         return
@@ -178,7 +178,7 @@ class Kenzer(object):
     #checks for other common vulnerabilities
     def vulnscan(self):
         for i in range(2,len(self.content)):
-            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb)
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
             message = self.scan.vulnscan()
             self.sendMessage(message)
         return
@@ -265,8 +265,12 @@ class Kenzer(object):
 
 #main
 def main():
-    bot = Kenzer()
-    bot.client.call_on_each_message(bot.process)
+    try:
+        bot = Kenzer()
+        bot.client.call_on_each_message(bot.process)
+    except:
+        print("an error occurred.... retrying.....")
+        main()
 
 #runs main
 if __name__ == "__main__":
