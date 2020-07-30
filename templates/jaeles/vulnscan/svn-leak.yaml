@@ -2,6 +2,7 @@ id: svn-leak
 info:
   name: SVN Leak Source
   risk: Medium
+  confidence: Certain
 
 params:
   - root: '{{.BaseURL}}'
@@ -24,4 +25,3 @@ requests:
         StatusCode() == 200 && (RegexSearch("resHeaders", ".*Content-Type:.*octet-stream") || RegexSearch("resHeaders", "text/plain")) && StringSearch("body", "END")  && StringSearch("body", "svn:")
       - >-
         StatusCode() == 200 && (RegexSearch("resHeaders", ".*Content-Type:.*octet-stream") || RegexSearch("resHeaders", "text/plain")) && StringSearch("body","dir") && StringSearch("body", "file")
-

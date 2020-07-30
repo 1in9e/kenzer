@@ -110,6 +110,7 @@ requests:
         name: fastly
         words:
           - "Fastly error: unknown domain:"
+          - "Please check that this domain has been added to a service"
 
       - type: word
         name: feedpress
@@ -236,6 +237,11 @@ requests:
         words:
           - Public Report Not Activated
           - This public report page has not been activated by the user
+        
+      - type: word
+        name: pageserve
+        words:
+          - "You've Discovered A Missing Link. Our Apologies!"
 
       - type: word
         name: proposify
@@ -251,6 +257,7 @@ requests:
         name: shopify
         words:
           - "Sorry, this shop is currently unavailable."
+          - "Only one step left!"
 
       - type: word
         name: simplebooklet
@@ -275,10 +282,15 @@ requests:
           - '{"text":"Page Not Found"'
 
       - type: word
+        name: surveygizmo
+        words:
+          - data-html-name
+
+      - type: word
         name: strikingly
         words:
           - But if you're looking to build your own website
-          - you've come to the right place.
+          - you've come to the right place
 
       - type: word
         name: surge
@@ -326,7 +338,7 @@ requests:
       - type: word
         name: uberflip
         words:
-          - "Non-hub domain, The URL you've accessed does not provide a hub."
+          - "The URL you've accessed does not provide a hub."
 
       - type: word
         name: unbounce

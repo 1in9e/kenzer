@@ -32,14 +32,14 @@ class Scanner:
         subs = path+"/probeserv.kenz"
         if(os.path.exists(subs) == False):
             return("run probeserv for: "+self.domain)
-        self.nuclei(100, "subover/web", 20, subs, output)
+        self.nuclei(100, "subover/web", 15, subs, output)
         output = path+"/suboverDNS.log"
         subs = path+"/subenum.kenz"
         if(os.path.exists(subs) == False):
             return("run subenum for: "+self.domain)
-        self.nuclei(100, "subover/dns/subdomain-takeover-dns.yaml", 20, subs, output)
+        self.nuclei(100, "subover/dns/subdomain-takeover-dns.yaml", 15, subs, output)
         output = path+"/suboverDNSWILD.log"
-        self.nuclei(100, "subover/dns/subdomain-takeover-dns-wildcards.yaml", 20, subs, output)
+        self.nuclei(100, "subover/dns/subdomain-takeover-dns-wildcards.yaml", 15, subs, output)
         return("completed subover for: "+domain) 
 
     #checks for CVEs using nuclei & jaeles
@@ -50,15 +50,15 @@ class Scanner:
         if(os.path.exists(subs) == False):
             return("run probeserv for: "+self.domain)
         output = path+"/cvescanDOMN.log"
-        self.nuclei(100, "cvescan", 20, subs, output)
+        self.nuclei(100, "cvescan", 15, subs, output)
         output = path+"/cvescanDOMJ.log"
-        self.jaeles(100, "cvescan", 20, subs, output)
+        self.jaeles(100, "cvescan", 15, subs, output)
         subs = path+"/urlenum.kenz"
         if(os.path.exists(subs)):
             output = path+"/cvescanURLN.log"
-            self.nuclei(100, "cvescan", 20, subs, output)
+            self.nuclei(100, "cvescan", 15, subs, output)
             output = path+"/cvescanURLJ.log"
-            self.jaeles(100, "cvescan", 20, subs, output)
+            self.jaeles(100, "cvescan", 15, subs, output)
         return("completed cvescan for: "+domain)
 
     #checks for other common vulnerabilities using nuclei & jaeles
@@ -69,13 +69,13 @@ class Scanner:
         if(os.path.exists(subs) == False):
             return("run probeserv for: "+self.domain)
         output = path+"/vulnscanDOMN.log"
-        self.nuclei(100, "vulnscan", 20, subs, output)
+        self.nuclei(100, "vulnscan", 15, subs, output)
         output = path+"/vulnscanDOMJ.log"
-        self.jaeles(100, "vulnscan", 20, subs, output)
+        self.jaeles(100, "vulnscan", 15, subs, output)
         subs = path+"/urlenum.kenz"
         if(os.path.exists(subs)):
             output = path+"/vulnscanURLN.log"
-            self.nuclei(100, "vulnscan", 20, subs, output)
+            self.nuclei(100, "vulnscan", 15, subs, output)
             output = path+"/vulnscanURLJ.log"
-            self.jaeles(100, "vulnscan", 20, subs, output)
+            self.jaeles(100, "vulnscan", 15, subs, output)
         return("completed vulnscan for: "+domain)

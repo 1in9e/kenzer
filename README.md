@@ -11,6 +11,7 @@
 6. Install & run using `./install.sh` or just run using `./run.sh`<br>
 7. You can interact with **KENZER** using multi-platform Zulip Clients.<br>
 8. **KENZERDB** can be cloned using `git clone https://github.com/g147/kenzerdb.git`<br>
+9. `kenzer man` as input can be used to display the user manual while interaction.<br>
 
 ## Built-in Functionalities
 >* Enumerates subdomains<br>
