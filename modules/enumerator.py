@@ -5,10 +5,11 @@ import os
 class Enumerator:
     
     #initializations
-    def __init__(self,domain,db):
+    def __init__(self,domain,db,chaos):
         self.domain = domain
         self.organization = domain.replace(".","")
         self.path = db+self.organization
+        self.chaosapi=chaos
         if(os.path.exists(self.path) == False):
             os.system("mkdir "+self.path)
     
@@ -18,6 +19,7 @@ class Enumerator:
 
     #enumerates subdomains
     def subenum(self):
+        self.chaos()
         self.subfinder()
         self.shuffledns()
         domain = self.domain
@@ -25,11 +27,24 @@ class Enumerator:
         out=path+"/subenum.kenz"
         if(os.path.exists(out)):
             os.system("mv {0} {0}.old".format(out))
-        os.system("cat {0}/subfinder.log* {0}/subenum.kenz* {0}/shuffledns.log* | sort -u > {1}".format(path, out))
+        os.system("cat {0}/subfinder.log* {0}/subenum.kenz* {0}/shuffledns.log* {0}/chaos.log* | sort -u > {1}".format(path, out))
         #counts = str(sum(1 for line in open(out)))
         #return "successfully gathered {0} subdomains for: {1}".format(counts, domain)
         return("completed subenum for: "+domain) 
     
+    
+    #enumerates subdomains using chaos
+    #"retains wildcard domains" - retaining the possibilities of takeover detection via DNS e.g. AZURE
+    def chaos(self):
+        domain = self.domain
+        path = self.path
+        path+="/chaos.log"
+        api = self.chaosapi
+        if(os.path.exists(path)):
+            os.system("mv {0} {0}.old".format(path))
+        os.system("chaos -o {0} -d {1} -key {2}".format(path, domain, api))
+        return
+
     #enumerates subdomains using subfinder
     #"retains wildcard domains" - retaining the possibilities of takeover detection via DNS e.g. AZURE
     def subfinder(self):
@@ -38,7 +53,7 @@ class Enumerator:
         path+="/subfinder.log"
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
-        os.system("subfinder -t 40 -max-time 500 -o {0} -v -timeout 20 -d {1}".format(path, domain))
+        os.system("subfinder -t 50 -max-time 60 -o {0} -v -timeout 20 -d {1}".format(path, domain))
         return
 
     #enumerates subdomains using shuffledns
@@ -49,7 +64,7 @@ class Enumerator:
         path+="/shuffledns.log"
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
-        os.system("shuffledns -r wordlists/resolvers.txt -w wordlists/shuffledns.txt -wt 100 -o {0} -v -d {1}".format(path, domain))
+        os.system("shuffledns -retries 2 -r wordlists/resolvers.txt -w wordlists/shuffledns.txt -wt 100 -o {0} -v -d {1}".format(path, domain))
         return 
 
     #probes for web servers from enumerated subdomains
