@@ -10,15 +10,15 @@ requests:
     path:
       - "{{BaseURL}}"
 
-  matchers-condition: and
-  matchers:
-      - part: body
+    matchers-condition: and
+    matchers:
+      - type: regex
+        part: body
         regex:
           - "amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-        type: regex
 
-  extractors:
-      - part: body
+    extractors:
+      - type: regex
+        part: body
         regex:
           - "amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-        type: regex

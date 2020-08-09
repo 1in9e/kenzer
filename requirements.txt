@@ -2,4 +2,5 @@ spacy
 setuptools
 zulip
 chatterbot
-chatterbot-corpus 
+chatterbot-corpus
+mmh3 

@@ -45,7 +45,7 @@ class Kenzer(object):
         self.trainer.train("chatterbot.corpus.english")
         self.upload=True
         print("[*] loading modules")
-        #self.modules=["man", "subenum", "probeserv", "portenum", "urlenum", "subover", "cvescan", "vulnscan", "enum", "scan", "recon", "remolog", "upload"]
+        #self.modules=["man", "subenum", "probeserv", "favenum", "portenum", "urlenum", "subover", "cvescan", "vulnscan", "enum", "scan", "recon", "remolog", "upload"]
         print("[*] KENZER is online")
 
     #subscribes to all streams
@@ -62,10 +62,11 @@ class Kenzer(object):
     def man(self):
         message = "**KENZER is online**\n"
         message +="  initializations successful\n"
-        message +="  12 modules up & running\n"
+        message +="  13 modules up & running\n"
         message +="**KENZER modules**\n"
         message +="  `subenum` - enumerates subdomains\n"
         message +="  `probeserv` - probes web servers from enumerated subdomains\n"
+        message +="  `favenum` - fingerprints using favicon\n"
         message +="  `portenum` - enumerates open ports\n"
         message +="  `urlenum` - enumerates urls\n"
         message +="  `subover` - checks for subdomain takeovers\n"
@@ -89,6 +90,8 @@ class Kenzer(object):
             message ="`kenzer subenum <domain>` - enumerates subdomains of the given domain\n"
         elif module == "probeserv":
             message ="`kenzer probeserv <domain>` - probes web servers for enumerated subdomains of the given domain\n"
+        elif module == "favenum":
+            message ="`kenzer favenum <domain>` - fingerprints probed web servers using favicon\n"
         elif module == "portenum":
             message ="`kenzer portenum <domain>` - enumerates open ports for enumerated subdomains of the given domain\n"
         elif module == "urlenum":
@@ -172,6 +175,17 @@ class Kenzer(object):
                 self.uploader(self.content[i], "probeserv.kenz")
         return
     
+    #fingerprints servers using favicons
+    def favenum(self):
+        for i in range(2,len(self.content)):
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos)
+            message = self.enum.favenum()
+            self.sendMessage(message)
+            if self.upload:
+                self.uploader(self.content[i], "favenum.kenz")
+        return
+
+
     #enumerates open ports
     def portenum(self):
         for i in range(2,len(self.content)):
@@ -227,6 +241,7 @@ class Kenzer(object):
     def enum(self):
         self.subenum()
         self.probeserv()
+        self.favenum()
         self.portenum()
         self.urlenum()
         return
@@ -276,6 +291,8 @@ class Kenzer(object):
                 self.subenum()
             elif content[1].lower() == "probeserv":
                 self.probeserv()
+            elif content[1].lower() == "favenum":
+                self.favenum()
             elif content[1].lower() == "portenum":
                 self.portenum()
             elif content[1].lower() == "urlenum":

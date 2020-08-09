@@ -16,6 +16,7 @@
 ## Built-in Functionalities
 >* Enumerates subdomains<br>
 >* Probes web servers from the enumerated subdomains<br>
+>* Fingerprints using favicon<br>
 >* Enumerates open ports<br>
 >* Enumerates urls<br>
 >* Checks for Subdomain Takeovers<br>
