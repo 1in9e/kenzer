@@ -3,4 +3,4 @@ setuptools
 zulip
 chatterbot
 chatterbot-corpus
-mmh3 
+mmh3

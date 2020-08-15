@@ -17,6 +17,10 @@ dns:
         words:
           - "azure-api.net"
           - "azure-mobile.net"
+          - "azure-dns.org"
+          - "azure-dns.net"
+          - "azure-dns.com"
+          - "azure-dns.info"
           - "azurecontainer.io"
           - "azurecr.io"
           - "azuredatalakestore.net"

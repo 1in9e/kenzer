@@ -90,7 +90,7 @@ class Enumerator:
         path+="/httpx.log"
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
-        os.system("httpx -status-code -l {0} -threads 100 -ports 80,5601,8080,8000,9090,9200,9502,15672,32000 -retries 2 -timeout 10 -verbose -o {1}".format(subs, path))
+        os.system("httpx -status-code -l {0} -threads 100 -ports 80,5601,8080,8000,9090,9200,9502,15672,32000 -retries 2 -timeout 7 -verbose -o {1}".format(subs, path))
         return
 
     #enumerates open ports using naabu
@@ -126,7 +126,8 @@ class Enumerator:
         out=path+"/urlenum.kenz"
         if(os.path.exists(out)):
             os.system("mv {0} {0}.old".format(out))
-        os.system("cat {0}/gttpx.log | grep [200] | cut -d' ' -f 1 | sort -u > {1}".format(path, out))
+        os.system("cat {0}/gttpx.log | grep [200] | cut -d' ' -f 1 | gf urlenum | sort -u > {1}".format(path, out))
+        os.system("rm {0}/gttpx.log {0}/gau.log".format(path))
         #counts = str(sum(1 for line in open(out)))
         #return "successfully gathered {0} urls for: {1}".format(counts, domain)
         return("completed urlenum for: "+domain) 
@@ -140,29 +141,5 @@ class Enumerator:
             os.system("mv {0} {0}.old".format(path))
         os.system("gau -subs -o {0} {1}".format(path, domain))
         out = self.path+"/gttpx.log"
-        os.system("httpx -threads 100 -status-code -retries 2 -timeout 10 -verbose -l {0} -o {1}".format(path, out))
-        return
-
-    #fingerprints probed servers
-    def favenum(self):
-        if(os.path.exists(self.path+"/probeserv.kenz") == False):
-            return("run probeserv for: "+self.domain)
-        self.favfreak()
-        domain = self.domain
-        path = self.path
-        out = path+"/favenum.kenz"
-        if(os.path.exists(out)):
-            os.system("mv {0} {0}.old".format(out))
-        os.system("more {0}/favfreak/*.txt > {1}".format(path, out))
-        #counts = str(sum(1 for line in open(out))) 
-        #return "successfully fingerprinted "+counts+" servers for: "+domain
-        return("completed favenum for: "+domain) 
-
-    #fingerprints probed servers using favfreak
-    def favfreak(self):
-        domain = self.domain
-        path = self.path
-        subs = path+"/probeserv.kenz"
-        path+="/favfreak"
-        os.system("favfreak -t 100 -T 6 -o {1} < {0}".format(subs, path))
+        os.system("httpx -threads 100 -status-code -retries 2 -timeout 7 -verbose -l {0} -o {1}".format(path, out))
         return

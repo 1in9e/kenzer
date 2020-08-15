@@ -45,7 +45,7 @@ class Kenzer(object):
         self.trainer.train("chatterbot.corpus.english")
         self.upload=True
         print("[*] loading modules")
-        #self.modules=["man", "subenum", "probeserv", "favenum", "portenum", "urlenum", "subover", "cvescan", "vulnscan", "enum", "scan", "recon", "remolog", "upload"]
+        #self.modules=["man", "subenum", "probeserv", "favinize", "portenum", "urlenum", "subover", "cvescan", "vulnscan", "s3hunt", "enum", "scan", "recon", "remolog", "upload"]
         print("[*] KENZER is online")
 
     #subscribes to all streams
@@ -62,16 +62,17 @@ class Kenzer(object):
     def man(self):
         message = "**KENZER is online**\n"
         message +="  initializations successful\n"
-        message +="  13 modules up & running\n"
+        message +="  14 modules up & running\n"
         message +="**KENZER modules**\n"
         message +="  `subenum` - enumerates subdomains\n"
         message +="  `probeserv` - probes web servers from enumerated subdomains\n"
-        message +="  `favenum` - fingerprints using favicon\n"
         message +="  `portenum` - enumerates open ports\n"
         message +="  `urlenum` - enumerates urls\n"
         message +="  `subover` - checks for subdomain takeovers\n"
         message +="  `cvescan` - checks for CVEs\n"
         message +="  `vulnscan` - checks for common vulnerabilites\n"
+        message +="  `s3hunt` - hunts for unreferenced aws s3 buckets\n"
+        message +="  `favinize` - fingerprints using favicon\n"
         message +="  `enum` - runs all enumerator modules\n"
         message +="  `scan` - runs all scanner modules\n"
         message +="  `recon` - runs all modules\n"
@@ -90,8 +91,6 @@ class Kenzer(object):
             message ="`kenzer subenum <domain>` - enumerates subdomains of the given domain\n"
         elif module == "probeserv":
             message ="`kenzer probeserv <domain>` - probes web servers for enumerated subdomains of the given domain\n"
-        elif module == "favenum":
-            message ="`kenzer favenum <domain>` - fingerprints probed web servers using favicon\n"
         elif module == "portenum":
             message ="`kenzer portenum <domain>` - enumerates open ports for enumerated subdomains of the given domain\n"
         elif module == "urlenum":
@@ -102,6 +101,10 @@ class Kenzer(object):
             message ="`kenzer cvescan <domain>` - checks if subdomains/urls of the given domain are vulnerable to known CVEs\n"
         elif module == "vulnscan":
             message ="`kenzer vulnscan <domain>` - checks if subdomains/urls of the given domain are vulnerable to other common vulnerabilities\n"
+        elif module == "s3hunt":
+            message ="`kenzer s3hunt <domain>` - hunts for unreferenced aws s3 buckets of the given domain \n"
+        elif module == "favinize":
+            message ="`kenzer favinize <domain>` - fingerprints probed web servers using favicon\n"
         elif module == "enum":
             message ="`kenzer enum <domain>` - runs all enumerator modules on given domain\n"
         elif module == "scan":
@@ -175,17 +178,6 @@ class Kenzer(object):
                 self.uploader(self.content[i], "probeserv.kenz")
         return
     
-    #fingerprints servers using favicons
-    def favenum(self):
-        for i in range(2,len(self.content)):
-            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos)
-            message = self.enum.favenum()
-            self.sendMessage(message)
-            if self.upload:
-                self.uploader(self.content[i], "favenum.kenz")
-        return
-
-
     #enumerates open ports
     def portenum(self):
         for i in range(2,len(self.content)):
@@ -236,12 +228,32 @@ class Kenzer(object):
             if self.upload:
                 self.uploader(self.content[i], "vulnscan.log")
         return
+    
+    #checks for subdomain takeovers
+    def s3hunt(self):
+        for i in range(2,len(self.content)):
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
+            message = self.scan.s3hunt()
+            self.sendMessage(message)
+            if self.upload:
+                self.uploader(self.content[i], "s3huntDirect.log")
+                self.uploader(self.content[i], "s3huntPerms.log")
+        return
+
+    #fingerprints servers using favicons
+    def favinize(self):
+        for i in range(2,len(self.content)):
+            self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
+            message = self.scan.favinize()
+            self.sendMessage(message)
+            if self.upload:
+                self.uploader(self.content[i], "favinize.kenz")
+        return
 
     #runs all enumeration modules
     def enum(self):
         self.subenum()
         self.probeserv()
-        self.favenum()
         self.portenum()
         self.urlenum()
         return
@@ -249,6 +261,8 @@ class Kenzer(object):
     #runs all scanning modules
     def scan(self):
         self.subover()
+        self.favinize()
+        self.s3hunt()
         self.cvescan()
         self.vulnscan()
         return
@@ -291,8 +305,8 @@ class Kenzer(object):
                 self.subenum()
             elif content[1].lower() == "probeserv":
                 self.probeserv()
-            elif content[1].lower() == "favenum":
-                self.favenum()
+            elif content[1].lower() == "favinize":
+                self.favinize()
             elif content[1].lower() == "portenum":
                 self.portenum()
             elif content[1].lower() == "urlenum":
@@ -303,6 +317,8 @@ class Kenzer(object):
                 self.cvescan()
             elif content[1].lower() == "vulnscan":
                 self.vulnscan()
+            elif content[1].lower() == "s3hunt":
+                self.s3hunt()
             elif content[1].lower() == "enum":
                 self.enum()
             elif content[1].lower() == "scan":

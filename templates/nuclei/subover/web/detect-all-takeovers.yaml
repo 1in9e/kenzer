@@ -340,10 +340,10 @@ requests:
         words:
           - "The URL you've accessed does not provide a hub."
 
-      - type: word
+      - type: regex
         name: unbounce
         words:
-          - "The requested URL was not found on this server."
+          - "^The requested URL was not found on this server.$"
 
       - type: regex
         name: uptimerobot

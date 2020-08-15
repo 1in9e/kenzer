@@ -16,7 +16,7 @@ class Scanner:
 
     #runs nuclei
     def nuclei(self, threads, template, timeout, hosts, output):
-        os.system("nuclei -c {0} -t {5}nuclei/{1} -v -timeout {2} -l {3} -o {4}".format(threads, template, timeout, hosts, output, self.templates))
+        os.system("nuclei -c {0} -t {5}nuclei/{1} -pbar -v -timeout {2} -l {3} -o {4}".format(threads, template, timeout, hosts, output, self.templates))
         return
     
     #runs jaeles
@@ -79,3 +79,34 @@ class Scanner:
             output = path+"/vulnscanURLJ.log"
             self.jaeles(100, "vulnscan", 15, subs, output)
         return("completed vulnscan for: "+domain)
+
+    #hunts for unreferenced aws s3 buckets using s3hunter
+    def s3hunt(self):
+        domain = self.domain
+        path = self.path
+        subs = path+"/subenum.kenz"
+        if(os.path.exists(subs) == False):
+            return("run subenum for: "+self.domain)
+        output = path+"/s3huntDirect.log"
+        os.system("s3-hunter -l {0} -t 7 -T 100 -o {1} --only-direct".format(subs, output))
+        output = path+"/iperms.log"
+        os.system("s3-hunter -l {0} -o {1} -P".format(subs, output))
+        subs = output
+        output = path+"/s3huntPerms.log"
+        self.nuclei(100, "subover/web/s3-hunter.yaml", 15, subs, output)
+        return("completed s3hunt for: "+domain)
+    
+    #fingerprints probed servers using favinizer
+    def favinize(self):
+        domain = self.domain
+        path = self.path
+        out = path+"/favinize.kenz"
+        subs = path+"/probeserv.kenz"
+        if(os.path.exists(subs) == False):
+            return("run probeserv for: "+self.domain)
+        if(os.path.exists(out)):
+            os.system("mv {0} {0}.old".format(out))
+        os.system("favinizer -d {2}/favinizer.yaml -t 7 -T 100 -l {0} -o {1}".format(subs, out, self.templates))
+        #counts = str(sum(1 for line in open(out))) 
+        #return "successfully fingerprinted "+counts+" servers for: "+domain
+        return("completed favinize for: "+domain) 
