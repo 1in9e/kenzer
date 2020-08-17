@@ -62,7 +62,7 @@ class Kenzer(object):
     def man(self):
         message = "**KENZER is online**\n"
         message +="  initializations successful\n"
-        message +="  14 modules up & running\n"
+        message +="  15 modules up & running\n"
         message +="**KENZER modules**\n"
         message +="  `subenum` - enumerates subdomains\n"
         message +="  `probeserv` - probes web servers from enumerated subdomains\n"
@@ -76,6 +76,7 @@ class Kenzer(object):
         message +="  `enum` - runs all enumerator modules\n"
         message +="  `scan` - runs all scanner modules\n"
         message +="  `recon` - runs all modules\n"
+        message +="  `hunt` - runs your custom workflow\n"
         message +="  `remolog` - removes old log files\n"
         message +="  `upload` - switches upload functionality\n"
         message +="`kenzer <module>` - runs a specific modules\n"
@@ -109,6 +110,8 @@ class Kenzer(object):
             message ="`kenzer enum <domain>` - runs all enumerator modules on given domain\n"
         elif module == "scan":
             message ="`kenzer scan <domain>` - runs all scanner modules on given domain\n"
+        elif module == "hunt":
+            message ="`kenzer hunt <domain>` - runs your custom workflow on given domain\n"
         elif module == "recon":
             message ="`kenzer recon <domain>` - runs all modules on given domain\n"
         elif module == "remolog":
@@ -266,7 +269,20 @@ class Kenzer(object):
         self.cvescan()
         self.vulnscan()
         return
-    
+
+    #define your custom workflow    
+    def hunt(self):
+        self.subenum()
+        self.probeserv()
+        self.subover()
+        self.favinize()
+        self.s3hunt()
+        self.urlenum()
+        #manual audit required for urlenum
+        self.cvescan()
+        self.vulnscan()
+        self.portenum()
+
     #runs all modules
     def recon(self):
         self.enum()
@@ -323,6 +339,8 @@ class Kenzer(object):
                 self.enum()
             elif content[1].lower() == "scan":
                 self.scan()
+            elif content[1].lower() == "hunt":
+                self.hunt()
             elif content[1].lower() == "recon":
                 self.recon()
             elif content[1].lower() == "remolog":

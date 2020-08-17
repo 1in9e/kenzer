@@ -28,11 +28,8 @@ class Enumerator:
         if(os.path.exists(out)):
             os.system("mv {0} {0}.old".format(out))
         os.system("cat {0}/subfinder.log* {0}/subenum.kenz* {0}/shuffledns.log* {0}/chaos.log* | sort -u > {1}".format(path, out))
-        #counts = str(sum(1 for line in open(out)))
-        #return "successfully gathered {0} subdomains for: {1}".format(counts, domain)
         return("completed subenum for: "+domain) 
-    
-    
+        
     #enumerates subdomains using chaos
     #"retains wildcard domains" - retaining the possibilities of takeover detection via DNS e.g. AZURE
     def chaos(self):
@@ -78,8 +75,6 @@ class Enumerator:
         if(os.path.exists(out)):
             os.system("mv {0} {0}.old".format(out))
         os.system("cat {0}/httpx.log* | cut -d' ' -f 1 | sort -u > {1}".format(path, out))
-        #counts = str(sum(1 for line in open(out))) 
-        #return "successfully probed "+counts+" servers for: "+domain
         return("completed probeserv for: "+domain) 
 
     #probes for web servers from enumerated subdomains using httpx
@@ -90,7 +85,7 @@ class Enumerator:
         path+="/httpx.log"
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
-        os.system("httpx -status-code -l {0} -threads 100 -ports 80,5601,8080,8000,9090,9200,9502,15672,32000 -retries 2 -timeout 7 -verbose -o {1}".format(subs, path))
+        os.system("httpx -status-code -no-color -l {0} -threads 100 -ports 80,5601,8080,8000,9090,9200,9502,15672,32000 -retries 2 -timeout 6 -verbose -o {1}".format(subs, path))
         return
 
     #enumerates open ports using naabu
@@ -102,7 +97,7 @@ class Enumerator:
         path = self.path
         output = path+"/portenum.kenz"
         subs = path+"/shuffsolv.log"
-        os.system("naabu -hL {0} -ports {3} -retries {4} -rate {5} -timeout {6} -json -o {1} -v -t {2} ".format(subs, output, 4, "top-1000", 2, 200, 2000))
+        os.system("naabu -hL {0} -ports {3} -retries {4} -rate {5} -timeout {6} -json -o {1} -v -t {2} ".format(subs, output, 5, "top-1000", 2, 200, 2000))
         return("completed portenum for: "+domain)
 
     #resolves & removes wildcard subdomains using shuffledns
@@ -117,8 +112,6 @@ class Enumerator:
         return
 
     #enumerates urls
-    #generates massive results containing endpoints with 200 status code
-    #isn't reliable at all
     def urlenum(self):
         self.gau()
         domain = self.domain
@@ -126,13 +119,10 @@ class Enumerator:
         out=path+"/urlenum.kenz"
         if(os.path.exists(out)):
             os.system("mv {0} {0}.old".format(out))
-        os.system("cat {0}/gttpx.log | grep [200] | cut -d' ' -f 1 | gf urlenum | sort -u > {1}".format(path, out))
-        os.system("rm {0}/gttpx.log {0}/gau.log".format(path))
-        #counts = str(sum(1 for line in open(out)))
-        #return "successfully gathered {0} urls for: {1}".format(counts, domain)
+        os.system("cat {0}/gttpx.log | grep '\[200\]' | cut -d' ' -f 1 | sort -u > {1}".format(path, out))
         return("completed urlenum for: "+domain) 
     
-    #enumerates urls using gau & probes using httpx
+    #enumerates urls using gau, filters using gf & probes using httpx
     def gau(self):
         domain = self.domain
         path = self.path
@@ -140,6 +130,9 @@ class Enumerator:
         if(os.path.exists(path)):
             os.system("mv {0} {0}.old".format(path))
         os.system("gau -subs -o {0} {1}".format(path, domain))
+        out = self.path+"/gauMod.log"
+        os.system("cat {0} | gf urlenum | sed 's/=[^&]*/=ALTER/g' | sort -u > {1}".format(path, out))
+        path=out
         out = self.path+"/gttpx.log"
-        os.system("httpx -threads 100 -status-code -retries 2 -timeout 7 -verbose -l {0} -o {1}".format(path, out))
+        os.system("httpx -no-color -threads 100 -status-code -retries 2 -timeout 6 -verbose -l {0} -o {1}".format(path, out))
         return
