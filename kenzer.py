@@ -6,7 +6,7 @@ import sys
 
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 from modules import enumerator
 from modules import scanner
@@ -14,9 +14,9 @@ from modules import scanner
 #configs
 try:
     conf = "configs/kenzer.conf"
-    config = SafeConfigParser()
+    config = ConfigParser()
     with open(conf) as f:
-        config.readfp(f, conf)
+         config.read_file(f, conf)
     _BotMail=config.get("zulip", "email")
     _Site=config.get("zulip", "site")
     _APIKey=config.get("zulip", "key")
@@ -24,6 +24,7 @@ try:
     _kenzerdb=config.get("env", "kenzerdb")
     _home=config.get("env", "home")
     _chaos=config.get("env", "chaos")
+    _github=config.get("env", "github")
     os.chdir(_kenzer)
     os.environ["HOME"] = _home
     if(os.path.exists(_kenzerdb) == False):
@@ -45,7 +46,7 @@ class Kenzer(object):
         self.trainer.train("chatterbot.corpus.english")
         self.upload=True
         print("[*] loading modules")
-        #self.modules=["man", "subenum", "probeserv", "favinize", "portenum", "urlenum", "subover", "cvescan", "vulnscan", "s3hunt", "enum", "scan", "recon", "remolog", "upload"]
+        #self.modules=["man", "subenum", "probeserv", "favinize", "portenum", "urlenum", "subover", "cvescan", "vulnscan", "s3hunt", "enum", "scan", "recon", "remlog", "upload"]
         print("[*] KENZER is online")
 
     #subscribes to all streams
@@ -68,16 +69,16 @@ class Kenzer(object):
         message +="  `probeserv` - probes web servers from enumerated subdomains\n"
         message +="  `portenum` - enumerates open ports\n"
         message +="  `urlenum` - enumerates urls\n"
-        message +="  `subover` - checks for subdomain takeovers\n"
-        message +="  `cvescan` - checks for CVEs\n"
-        message +="  `vulnscan` - checks for common vulnerabilites\n"
+        message +="  `subover` - hunts for subdomain takeovers\n"
+        message +="  `cvescan` - hunts for CVEs\n"
+        message +="  `vulnscan` - hunts for common vulnerabilites\n"
         message +="  `s3hunt` - hunts for unreferenced aws s3 buckets\n"
         message +="  `favinize` - fingerprints using favicon\n"
         message +="  `enum` - runs all enumerator modules\n"
         message +="  `scan` - runs all scanner modules\n"
         message +="  `recon` - runs all modules\n"
         message +="  `hunt` - runs your custom workflow\n"
-        message +="  `remolog` - removes old log files\n"
+        message +="  `remlog` - removes log files\n"
         message +="  `upload` - switches upload functionality\n"
         message +="`kenzer <module>` - runs a specific modules\n"
         message +="`kenzer man` - shows this manual\n"
@@ -97,7 +98,7 @@ class Kenzer(object):
         elif module == "urlenum":
             message ="`kenzer urlenum <domain>` - enumerates urls of the given domain\n"
         elif module == "subover":
-            message ="`kenzer subover <domain>` - checks for subdomain takeover possibilites of the given domain\n"
+            message ="`kenzer subover <domain>` - hunts for subdomain takeover possibilites of the given domain\n"
         elif module == "cvescan":
             message ="`kenzer cvescan <domain>` - checks if subdomains/urls of the given domain are vulnerable to known CVEs\n"
         elif module == "vulnscan":
@@ -114,8 +115,8 @@ class Kenzer(object):
             message ="`kenzer hunt <domain>` - runs your custom workflow on given domain\n"
         elif module == "recon":
             message ="`kenzer recon <domain>` - runs all modules on given domain\n"
-        elif module == "remolog":
-            message ="`kenzer remolog <domain>` - removes old log files for given domain\n"
+        elif module == "remlog":
+            message ="`kenzer remlog <domain>` - removes log files & empty files for given domain\n"
         elif module == "upload":
             message ="`kenzer upload` - turns upload on/off\n"
         else:
@@ -164,7 +165,7 @@ class Kenzer(object):
     #enumerates subdomains
     def subenum(self):
         for i in range(2,len(self.content)):
-            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos)
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos, _github)
             message = self.enum.subenum()
             self.sendMessage(message)
             if self.upload:
@@ -174,7 +175,7 @@ class Kenzer(object):
     #probes web servers from enumerated subdomains
     def probeserv(self):
         for i in range(2,len(self.content)):
-            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos)
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
             message = self.enum.probeserv()
             self.sendMessage(message)
             if self.upload:
@@ -184,7 +185,7 @@ class Kenzer(object):
     #enumerates open ports
     def portenum(self):
         for i in range(2,len(self.content)):
-            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos)
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
             message = self.enum.portenum()
             self.sendMessage(message)
             if self.upload:
@@ -193,54 +194,51 @@ class Kenzer(object):
     #enumerates urls
     def urlenum(self):
         for i in range(2,len(self.content)):
-            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos)
+            self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb, _chaos, _github)
             message = self.enum.urlenum()
             self.sendMessage(message)
             if self.upload:
                 self.uploader(self.content[i], "urlenum.kenz")
         return
 
-    #checks for subdomain takeovers
+    #hunts for subdomain takeovers
     def subover(self):
         for i in range(2,len(self.content)):
             self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
             message = self.scan.subover()
             self.sendMessage(message)
             if self.upload:
-                self.uploader(self.content[i], "suboverWEB.log")
-                self.uploader(self.content[i], "suboverDNS.log")
-                self.uploader(self.content[i], "suboverDNSWILD.log")
+                self.uploader(self.content[i], "subover.kenz")
         return
 
-    #checks for CVEs
+    #hunts for CVEs
     def cvescan(self):
         for i in range(2,len(self.content)):
             self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
             message = self.scan.cvescan()
             self.sendMessage(message)
             if self.upload:
-                self.uploader(self.content[i], "cvescan.log")
+                self.uploader(self.content[i], "cvescan.kenz")
         return
     
-    #checks for other common vulnerabilities
+    #hunts for other common vulnerabilities
     def vulnscan(self):
         for i in range(2,len(self.content)):
             self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
             message = self.scan.vulnscan()
             self.sendMessage(message)
             if self.upload:
-                self.uploader(self.content[i], "vulnscan.log")
+                self.uploader(self.content[i], "vulnscan.kenz")
         return
     
-    #checks for subdomain takeovers
+    #hunts for subdomain takeovers
     def s3hunt(self):
         for i in range(2,len(self.content)):
             self.scan = scanner.Scanner(self.content[i].lower(), _kenzerdb, _kenzer)
             message = self.scan.s3hunt()
             self.sendMessage(message)
             if self.upload:
-                self.uploader(self.content[i], "s3huntDirect.log")
-                self.uploader(self.content[i], "s3huntPerms.log")
+                self.uploader(self.content[i], "s3hunt.kenz")
         return
 
     #fingerprints servers using favicons
@@ -282,6 +280,7 @@ class Kenzer(object):
         self.cvescan()
         self.vulnscan()
         self.portenum()
+        self.remlog()
 
     #runs all modules
     def recon(self):
@@ -290,10 +289,10 @@ class Kenzer(object):
         return
     
     #removes old log files
-    def remolog(self):
+    def remlog(self):
         for i in range(2,len(self.content)):
             self.enum = enumerator.Enumerator(self.content[i].lower(), _kenzerdb)
-            message = self.enum.remolog()
+            message = self.enum.remlog()
             self.sendMessage(message)
         return
 
@@ -343,8 +342,8 @@ class Kenzer(object):
                 self.hunt()
             elif content[1].lower() == "recon":
                 self.recon()
-            elif content[1].lower() == "remolog":
-                self.remolog()
+            elif content[1].lower() == "remlog":
+                self.remlog()
             elif content[1].lower() == "upload":
                 self.upload = not self.upload
                 self.sendMessage("upload: "+str(self.upload))

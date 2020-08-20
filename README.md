@@ -20,10 +20,12 @@
 >* Hunts for open S3 bucket(s3hunt)<br>
 >* Enumerates open ports(portenum)<br>
 >* Enumerates urls(urlenum)<br>
->* Checks for Subdomain Takeovers(subover)<br>
->* Checks for CVEs(cvescan)<br>
->* Checks for other common vulnerabilities(vulnscan)<br>
+>* Hunts for Subdomain Takeovers(subover)<br>
+>* Hunts for CVEs(cvescan)<br>
+>* Hunts for other common vulnerabilities(vulnscan)<br>
 >* Chats using ChatterBot Conversational Engine<br>
+
+![](/images/webhunt.jpg)
 
 **COMPATIBILITY TESTED ON ARCHLINUX(x64) ONLY**<br>
 **FEEL FREE TO SUBMIT PULL REQUESTS**
